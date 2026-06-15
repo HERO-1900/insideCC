@@ -159,48 +159,56 @@ function fail(name, detail) {
   }
 
   // -------- Scenario 4: 难度过滤（在 reader view 里）--------
+  // 产品行为：点击「入门」后，非入门章节获得 inline style.opacity = '0.25'，
+  // 入门章节 opacity = '1'。过滤是「视觉变淡」而非「DOM 隐藏」，所以不能用
+  // getBoundingClientRect 判断 visible 数变化（变淡的元素尺寸不变）。
   try {
-    // 章节加载场景已经在 reader view，可以继续用
     const before = await page.evaluate(() => {
-      const toc = document.querySelector('#toc');
-      if (!toc) return { total: 0, visible: 0 };
-      const items = toc.querySelectorAll('.toc-chapter, [data-chapter-id]');
-      let visible = 0;
-      items.forEach((el) => {
-        const r = el.getBoundingClientRect();
-        if (r.width > 0 && r.height > 0) visible++;
-      });
-      return { total: items.length, visible };
+      const items = document.querySelectorAll('#toc .toc-chapter');
+      let dimmed = 0;
+      items.forEach((el) => { if (el.style.opacity && parseFloat(el.style.opacity) < 1) dimmed++; });
+      return { total: items.length, dimmed };
     });
     const filterClicked = await page.evaluate(() => {
-      // 难度过滤通常是 toc 上方/侧边的按钮组
-      const els = Array.from(document.querySelectorAll('button, a, [role=button], [data-difficulty]'));
-      const btn = els.find((el) => {
+      const btn = Array.from(document.querySelectorAll('.toc-filter')).find((el) => {
         const t = (el.innerText || '').trim();
-        return t === '入门' || t === 'Easy' || t === '简单' || t === '初级' || t === '初阶';
+        return t === '入门' || t === 'Beginner' || t === 'Easy' || t === '简单' || t === '初级' || t === '初阶';
       });
-      if (btn) { btn.click(); return true; }
-      return false;
+      if (btn) { btn.click(); return { ok: true, label: (btn.innerText || '').trim() }; }
+      // 兜底：找 data-level="easy"
+      const byData = document.querySelector('.toc-filter[data-level="easy"]');
+      if (byData) { byData.click(); return { ok: true, label: 'data-level=easy' }; }
+      return { ok: false };
     });
-    if (!filterClicked) {
-      ok('difficulty_filter', { skipped: 'no easy button found', before });
+    if (!filterClicked.ok) {
+      fail('difficulty_filter', { reason: 'easy filter button not found', before });
     } else {
       await page.waitForTimeout(1500);
       const after = await page.evaluate(() => {
-        const toc = document.querySelector('#toc');
-        if (!toc) return { total: 0, visible: 0 };
-        const items = toc.querySelectorAll('.toc-chapter, [data-chapter-id]');
-        let visible = 0;
+        const items = document.querySelectorAll('#toc .toc-chapter');
+        let dimmed = 0, bright = 0;
         items.forEach((el) => {
-          const r = el.getBoundingClientRect();
-          if (r.width > 0 && r.height > 0) visible++;
+          const o = parseFloat(el.style.opacity || '1');
+          if (o < 1) dimmed++; else bright++;
         });
-        return { total: items.length, visible };
+        const activeBtn = document.querySelector('.toc-filter.active');
+        return {
+          total: items.length,
+          dimmed,
+          bright,
+          activeLevel: activeBtn ? activeBtn.dataset.level : null,
+        };
       });
-      if (before.visible === after.visible && before.total > 0) {
-        fail('difficulty_filter', { before, after, reason: 'visible count unchanged' });
+      // 过滤生效的判据：active 按钮变成 easy，且至少有一些章节被变淡（dimmed > 0）
+      if (after.activeLevel === 'easy' && after.dimmed > 0) {
+        ok('difficulty_filter', { before, after, clicked: filterClicked });
       } else {
-        ok('difficulty_filter', { before, after });
+        fail('difficulty_filter', {
+          before,
+          after,
+          clicked: filterClicked,
+          reason: `expected activeLevel=easy and dimmed>0; got activeLevel=${after.activeLevel}, dimmed=${after.dimmed}`,
+        });
       }
     }
   } catch (e) {
