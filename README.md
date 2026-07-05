@@ -25,7 +25,7 @@
 |------|------|
 | 章节 · Chapters | **88** |
 | 中文正文 · Chinese body text | **约 39 万字 / ~390K CJK chars** |
-| 交互式图表 · Interactive SVG charts | **41** |
+| 交互式图表 · Interactive SVG charts | **119** |
 | 收录 Prompt 原文 · Verbatim prompts | **185** |
 | 覆盖子系统 · Subsystems covered | Query Loop · Tool Runtime · Agent 编排 · Prompt Factory · 安全模型 · 状态持久化 · 扩展生态 · Token 经济 · 配置治理 · 终端 UI |
 
@@ -58,13 +58,13 @@
 
 - **中英双语**：所有章节、UI、目录、图表标签均提供 zh / en 双版本，右上角一键切换
 - **三主题**：dark（专注）/ warm（Anthropic 风格暖色，默认）/ light（打印友好），跟随系统主题
-- **41 张交互式 SVG 图表**：响应式 + 主题联动 + 移动端友好，所有图表内嵌于章节正文，不是外链贴图
+- **119 张交互式 SVG 图表**：响应式 + 主题联动 + 移动端友好，所有图表内嵌于章节正文，不是外链贴图
 - **难度分级**：每章标注「入门 / 进阶 / 深度」，目录支持按分级过滤
 - **灵感板块**：「火花」（异想天开的微灵感）+「蓝图」（验证过的成熟方向），独立浏览路径
 - **工具与命令目录**：把 Claude Code 的工具集 / Slash 命令做成可检索的网格视图
 - **185 条 Prompt 全文收录**：第一手 Prompt 原文，不做摘要不做截断
 
-> Bilingual UI · 3 themes · 41 responsive SVG charts · difficulty filters · spark & blueprint sections · full prompt corpus.
+> Bilingual UI · 3 themes · 119 responsive SVG charts · difficulty filters · spark & blueprint sections · full prompt corpus.
 
 ---
 
@@ -125,4 +125,4 @@
 
 ---
 
-_Last updated: 2026-04-26_
+_Last updated: 2026-07-05_

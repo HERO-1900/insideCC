@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: 关键文件存在性
         run: |
@@ -102,7 +102,7 @@ jobs:
     # PR 跑不到 live，因为 PR 还没合并；只在 push/schedule/manual 跑
     if: github.event_name != 'pull_request'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: 等 GitHub Pages 部署（60s）
         run: sleep 60
 
@@ -179,8 +179,8 @@ jobs:
     needs: static-check
     if: github.event_name != 'pull_request'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
         with:
           node-version: "22"
 
@@ -200,7 +200,7 @@ jobs:
 
       - name: 上传报告（失败时）
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ci-smoke-report
           path: |
